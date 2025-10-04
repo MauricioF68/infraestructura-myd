@@ -12,7 +12,7 @@ Antes de comenzar, asegúrate de tener instaladas y configuradas las siguientes 
   - [ ] Una **cuenta de AWS** con permisos para crear recursos.
   - [ ] **AWS CLI v2** (Interfaz de Línea de Comandos de AWS).
       - *Instrucciones de instalación:* [Documentación Oficial de AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
-  - [ ] **Terraform** (versión \>= 1.0).
+  - [ ] **Terraform**
       - *Instrucciones de instalación:* [Documentación Oficial de Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli)
 
 
