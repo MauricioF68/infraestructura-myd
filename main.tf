@@ -1,4 +1,3 @@
-
 terraform {
   required_version = ">= 1.0"
 
@@ -9,12 +8,15 @@ terraform {
     }
   }
 }
-# Configure the AWS Provider
+
 provider "aws" {
   region = "us-east-1"
 }
 
-# Create a VPC
-resource "aws_vpc" "myd_vpc" {
-  cidr_block = "10.0.0.0/16"
+module "myd_vpc" {
+  source = "./modules/vpc"
+
+
+  project_name = "myd"
+  region       = "us-east-1"
 }
