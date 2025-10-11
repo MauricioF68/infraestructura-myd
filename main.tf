@@ -17,6 +17,6 @@ module "myd_vpc" {
   source = "./modules/vpc"
 
 
-  project_name = "myd"
+  project_name = var.project_name
   region       = "us-east-1"
 }
