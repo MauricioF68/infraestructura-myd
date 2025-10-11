@@ -44,11 +44,11 @@ resource "aws_subnet" "private_b" {
 
 
 # 1. Creamos la "puerta de salida" a internet para nuestra VPC.
-resource "aws_internet_gateway" "gw" {
+resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.myd_vpc.id
 
   tags = {
-    Name = "Proyecto-MYD-GW"
+    Name = "Proyecto-MYD-IGW"
   }
 }
 
@@ -59,7 +59,7 @@ resource "aws_route_table" "public_rt" {
 
   route {
     cidr_block =  "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.gw.id
+    gateway_id = aws_internet_gateway.igw.id
   }
 
   tags = {
@@ -79,4 +79,51 @@ resource "aws_route_table_association" "public_b_assoc" {
 # Create a VPC
 resource "aws_vpc" "myd_vpc" {
   cidr_block = "10.0.0.0/16"
+}
+
+# --- NAT GATEWAY & PRIVATE ROUTING ---
+# IP pública estática (Elastic IP) para el NAT Gateway.
+resource "aws_eip" "nat" {  
+  domain = "vpc"
+
+  tags = {
+    Name = "${var.project_name}-nat-eip"
+  }
+}
+
+# NAT Gateway en una de nuestras subredes públicas.
+resource "aws_nat_gateway" "nat" {
+  allocation_id = aws_eip.nat.id
+  subnet_id     = aws_subnet.public_a.id
+
+  tags = {
+    Name = "${var.project_name}-nat-igw"
+  }
+ 
+  depends_on = [aws_internet_gateway.igw]
+}
+
+#tabla de rutas SEPARADA para las subredes privadas.
+resource "aws_route_table" "private_rt" {
+  vpc_id = aws_vpc.myd_vpc.id
+  
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat.id
+  }
+
+  tags = {
+    Name = "${var.project_name}-private-rt"
+  }
+}
+
+#la tabla de rutas privada a nuestras subredes privadas.
+resource "aws_route_table_association" "private_a_assoc" {
+  subnet_id      = aws_subnet.private_a.id
+  route_table_id = aws_route_table.private_rt.id
+}
+
+resource "aws_route_table_association" "private_b_assoc" {
+  subnet_id      = aws_subnet.private_b.id
+  route_table_id = aws_route_table.private_rt.id
 }
